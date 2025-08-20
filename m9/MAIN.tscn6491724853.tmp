@@ -1,0 +1,45 @@
+[gd_scene load_steps=2 format=3 uid="uid://dcv3efolksihs"]
+
+[ext_resource type="Script" uid="uid://dxnbhneblekq4" path="res://canva.gd" id="1_0llpg"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.14902, 0.207843, 0.54902, 1)
+
+[node name="canva_container" type="Control" parent="."]
+layout_mode = 1
+anchor_right = 0.2
+anchor_bottom = 1.0
+grow_vertical = 2
+
+[node name="bg" type="ColorRect" parent="canva_container"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.94902, 0.756863, 0.784314, 1)
+
+[node name="canva" type="Control" parent="canva_container"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_0llpg")
+scale_color = Color(0.14902, 0.207843, 0.54902, 1)
