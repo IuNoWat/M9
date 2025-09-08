@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="M9"
-run/main_scene="uid://bn6sxsj8bfhh5"
+run/main_scene="uid://dn3rhu5oj3wil"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -19,6 +19,10 @@ config/icon="res://icon.svg"
 
 window/size/viewport_width=540
 window/size/viewport_height=910
+
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=true
 
 [input_devices]
 

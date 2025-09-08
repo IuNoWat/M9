@@ -1,30 +1,83 @@
 extends Node2D
 
+#CONSTANTS
+var min = 0
+var max = 5000
+var mode = "FREE"
+var unit_verbose = "litres d'eau"
+var unit = "l"
+
+#ONREADY
+@onready var my_scale = %my_scale
+@onready var my_camera = $camera
+@onready var view = $".."
+@onready var test = $camera/CanvasLayer/test
+@onready var mode_toggle = $camera/CanvasLayer/toggle
+
+#ENGINE
+var max_zoom=15
+var min_zoom=0.25
+
+#POS
+var BLOCS = []
+@export var POS : PackedScene
+var dragging=false
+
 var fingers = {}
 var other_pos = Vector2()
 var distance = 0
 var focus = 0
 var last_distance = 0
-@onready var my_scale = $canvas
-@onready var my_camera = $camera
-var BLOCS = []
-@export var POS : PackedScene
-var dragging=false
-var max_zoom=4
-var min_zoom=0.25
+
+
+var DATA = [
+	{
+		"text":"Une douche de 5 minutes",
+		"good_y":50
+	},
+	{
+		"text":"Une douche de 15 minutes",
+		"good_y":150
+	},
+	{
+		"text":"Un bain de 30 minutes",
+		"good_y":200
+	},
+]
+
+func mode_free() :
+	mode = "FREE"
+
+func mode_set(min,max,zoom) :
+	mode = "SET"
+	min=min
+	max=max
+	my_camera.zoom=Vector2(zoom,zoom)
+	my_camera.position = Vector2(view.get_visible_rect().size.x/2/my_camera.zoom.x,view.get_visible_rect().size.y/2/my_camera.zoom.y)
 
 func _ready() -> void:
-	for i in range(0,6) :
+	#Place Camera
+	my_camera.position = Vector2(view.get_visible_rect().size.x/2/my_camera.zoom.x,view.get_visible_rect().size.y/2/my_camera.zoom.y)
+	#Add POS from DATA
+	for i in range(0,len(DATA)) :
 		BLOCS.append(POS.instantiate())
+		BLOCS[i].text=DATA[i]["text"]
+		BLOCS[i].good_y=DATA[i]["good_y"]
+		BLOCS[i].position.y=20+20*i
+		BLOCS[i].position.x=25+25*i
 		add_child(BLOCS[i])
+	#Start in set mode
+	mode_set(0,250,5)
 
 func _process(delta: float) -> void :
+	
+	mode_toggle.text = mode # Show the current mode on the toogle button
+	
+	#Give my_scale the positiosn of the blocs so it can draw the dashed line
 	my_scale.pos_of_blocs = []
 	for entry in BLOCS :
 		my_scale.pos_of_blocs.append(entry.position)
 		entry.scale = Vector2(1 / my_camera.zoom.x,1/my_camera.zoom.y)
-	print(my_camera.zoom)
-
 
 func handle_zoom(event) :
 	for key in fingers :
@@ -32,26 +85,48 @@ func handle_zoom(event) :
 			other_pos=fingers[key]
 	distance=event.position.distance_to(other_pos)
 	if distance>last_distance :
-		my_camera.zoom=my_camera.zoom*1.1
-		if my_camera.zoom.x>5 :
-			my_camera.zoom = Vector2(10,10)
+		my_camera.zoom=my_camera.zoom*1.05
+		if my_camera.zoom.x>max_zoom :
+			my_camera.zoom = Vector2(max_zoom,max_zoom)
 	elif distance<last_distance:
-		my_camera.zoom=my_camera.zoom*0.9
-		if my_camera.zoom.x<0.25 :
-			my_camera.zoom = Vector2(0.20,0.20)
-	for entry in BLOCS :
-		entry.position.x = my_scale.get_scale_offset()
+		my_camera.zoom=my_camera.zoom*0.95
+		if my_camera.zoom.x<min_zoom :
+			my_camera.zoom = Vector2(min_zoom,min_zoom)
 	last_distance=distance
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventScreenTouch :
-		if event.pressed :
+	#DEBUG
+	if mode=="FREE" :
+		if event is InputEventScreenTouch :
+			if event.pressed :
+				fingers[str(event.index)]=event.position
+			else :
+				fingers.erase(str(event.index))
+		if event is InputEventScreenDrag :
 			fingers[str(event.index)]=event.position
-		else :
-			fingers.erase(str(event.index))
-	if event is InputEventScreenDrag :
-		fingers[str(event.index)]=event.position
-		if len(fingers)==1 and dragging==false :
-			my_camera.position.y-=event.relative.y
-		if len(fingers)==2 and dragging==false :
-			handle_zoom(event)
+			if len(fingers)==1 and dragging==false :
+				my_camera.position.y -= event.relative.y / my_scale.ratio
+				if my_camera.position.y<my_scale.offset.y-(my_scale.base_offset.y*2/my_scale.ratio)+my_scale.screen_size/2 :
+					my_camera.position.y=my_scale.offset.y-(my_scale.base_offset.y*2/my_scale.ratio)+my_scale.screen_size/2
+				if my_camera.position.y>max-my_scale.current_range+my_scale.screen_size/2 :
+					my_camera.position.y=max-my_scale.current_range+my_scale.screen_size/2
+			if len(fingers)==2 and dragging==false :
+				handle_zoom(event)
+
+
+func _on_toggle_pressed() -> void:
+	if mode == "FREE" :
+		mode_set(0,250,5)
+	else :
+		mode_free()
+
+
+func _on_test_pressed() -> void:
+	var last_tween
+	for entry in BLOCS :
+		var dist = abs(entry.position.y-entry.good_y)
+		var tween = get_tree().create_tween()
+		tween.tween_property(entry,"position",Vector2(entry.position.x,entry.good_y),2).set_ease(Tween.EASE_OUT)
+		await tween.finished
+		last_tween = tween
+	#await last_tween.finished

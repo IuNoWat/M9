@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cfwpvxwg3g5cu"]
 
 [ext_resource type="Script" uid="uid://c7oq4mi3bfrr" path="res://SCRIPTS/pos.gd" id="1_fp165"]
-[ext_resource type="Texture2D" uid="uid://djpjn2nx6p114" path="res://ASSETS/bain.png" id="2_7fr2m"]
+[ext_resource type="Texture2D" uid="uid://cv4jvl1xpgsw2" path="res://ASSETS/vide.png" id="2_7fr2m"]
 
 [node name="POS" type="Node2D"]
 script = ExtResource("1_fp165")
@@ -11,25 +11,68 @@ layout_mode = 3
 anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_right = 217.0
+offset_top = -70.0
+offset_right = 250.0
+offset_bottom = 70.0
 grow_vertical = 2
+
+[node name="Bain" type="Sprite2D" parent="Control"]
+position = Vector2(0, 31.5)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_7fr2m")
+centered = false
+
+[node name="Control" type="Control" parent="Control/Bain"]
+layout_mode = 3
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 84.0
+offset_top = -66.0
+offset_right = 494.0
+offset_bottom = 68.0
+grow_vertical = 2
+
+[node name="Text" type="Label" parent="Control/Bain/Control"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 240.0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 30
+text = "COUCOU"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Line2D" type="Line2D" parent="Control/Bain/Control"]
+points = PackedVector2Array(250, 10, 250, 124)
+width = 2.5
+
+[node name="Pos" type="Label" parent="Control/Bain/Control"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -138.0
+offset_right = 14.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 35
+text = "COUCOU"
+vertical_alignment = 1
 
 [node name="Button" type="Button" parent="Control"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -38.0
-offset_right = 5.0
-offset_bottom = 38.0
+offset_top = 32.0
+offset_right = 3.0
+offset_bottom = -32.0
 grow_horizontal = 2
 grow_vertical = 2
 flat = true
-
-[node name="Bain" type="Sprite2D" parent="Control"]
-position = Vector2(111, 0)
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("2_7fr2m")
 
 [connection signal="button_down" from="Control/Button" to="." method="_on_button_button_down"]
 [connection signal="button_up" from="Control/Button" to="." method="_on_button_button_up"]
