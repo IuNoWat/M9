@@ -13,10 +13,12 @@ var unit = "l"
 @onready var view = $".."
 @onready var test = $camera/CanvasLayer/test
 @onready var mode_toggle = $camera/CanvasLayer/toggle
+@onready var inventory = $camera/CanvasLayer/Inventory
 
 #ENGINE
 var max_zoom=15
 var min_zoom=0.25
+var inventory_open = false
 
 #POS
 var BLOCS = []
@@ -74,10 +76,14 @@ func _process(delta: float) -> void :
 	mode_toggle.text = mode # Show the current mode on the toogle button
 	
 	#Give my_scale the positiosn of the blocs so it can draw the dashed line
-	my_scale.pos_of_blocs = []
-	for entry in BLOCS :
-		my_scale.pos_of_blocs.append(entry.position)
+	var i = 0
+	for entry in BLOCS :		
 		entry.scale = Vector2(1 / my_camera.zoom.x,1/my_camera.zoom.y)
+		if entry.in_inventory :
+			entry.position.x=(inventory.position.x+30)/my_scale.ratio
+			entry.position.y=(600+100*i)/my_scale.ratio
+			print(entry.position)
+		i+=1
 
 func handle_zoom(event) :
 	for key in fingers :
@@ -120,13 +126,25 @@ func _on_toggle_pressed() -> void:
 	else :
 		mode_free()
 
-
 func _on_test_pressed() -> void:
 	var last_tween
 	for entry in BLOCS :
-		var dist = abs(entry.position.y-entry.good_y)
-		var tween = get_tree().create_tween()
-		tween.tween_property(entry,"position",Vector2(entry.position.x,entry.good_y),2).set_ease(Tween.EASE_OUT)
-		await tween.finished
-		last_tween = tween
+		if entry.in_inventory==false and entry.position.y!=entry.good_y :
+			var dist = abs(entry.position.y-entry.good_y)
+			var tween = get_tree().create_tween()
+			tween.tween_property(entry,"position",Vector2(entry.position.x,entry.good_y),2).set_ease(Tween.EASE_OUT)
+			await tween.finished
+			last_tween = tween
 	#await last_tween.finished
+
+
+func _on_inv_toggle_pressed() -> void:
+	var tween = get_tree().create_tween()
+	print(inventory.position)
+	if inventory_open :
+		tween.tween_property(inventory,"position",Vector2(888,545),0.5).set_ease(Tween.EASE_OUT)
+		inventory_open=false
+	else :
+		tween.tween_property(inventory,"position",Vector2(588,545),0.5).set_ease(Tween.EASE_OUT)
+		inventory_open=true
+	await tween.finished

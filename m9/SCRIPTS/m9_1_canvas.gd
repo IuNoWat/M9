@@ -7,7 +7,7 @@ var screen_max #maximum value visible on the camera
 var screen_size #Total size of the camera in canvas's pixel
 var cam_offset #Movements of the camera along the y axis (through touch drag) used to adapt draw()
 var current_range #Range of value visible on screen between screen_min and screen_max
-var pos_of_blocs = [] #Positions of the blocs 
+var blocs = [] #Positions of the blocs 
 
 #SCALE DIMENSION
 var base_offset = Vector2(20,20)
@@ -106,8 +106,10 @@ func _draw() :
 		draw_line(Vector2(cam_offset.x+offset.x-3/ratio,first_unit+i*current_unit),Vector2(cam_offset.x+offset.x+10/ratio,first_unit+i*current_unit),scale_color,line_thick)
 
 	#DASHED LINES
-	for pos in pos_of_blocs :
-		draw_dashed_line(Vector2(cam_offset.x+offset.x,pos.y),Vector2(pos.x+2,pos.y),line_color,dashed_thick,dashed_thick*5)
+
+	for bloc in parent.BLOCS :
+		if bloc.in_inventory==false :
+			draw_dashed_line(Vector2(cam_offset.x+offset.x,bloc.position.y),Vector2(bloc.position.x+2,bloc.position.y),line_color,dashed_thick,dashed_thick*5)
 
 	#DEBUG
 	#Show position of finger touching screen on canvas
